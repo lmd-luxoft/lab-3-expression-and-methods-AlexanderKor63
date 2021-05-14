@@ -1,93 +1,85 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Console;
 
 namespace XO
 {
     class Program
     {
-       static char win = '-';
-       static string PlayerName1, PlayerName2;
-       static char[] cells = new char[]{ '-', '-', '-', '-', '-', '-', '-', '-', '-' };
+        string PlayerName1, PlayerName2;
+        char[] cells = new char[]{ '-', '-', '-', '-', '-', '-', '-', '-', '-' };
 
-        static void show_cells()
-        {
-            Console.Clear();
+        public Program(string name1, string name2) {
+            PlayerName1 = name1;
+            PlayerName2 = name2;
 
-            Console.WriteLine("Числа клеток:");
-            Console.WriteLine("-1-|-2-|-3-");
-            Console.WriteLine("-4-|-5-|-6-");
-            Console.WriteLine("-7-|-8-|-9-");
-
-            Console.WriteLine("Текущая ситуация (---пустой):");
-            Console.WriteLine($"-{cells[0]}-|-{cells[1]}-|-{cells[2]}-");
-            Console.WriteLine($"-{cells[3]}-|-{cells[4]}-|-{cells[5]}-");
-            Console.WriteLine($"-{cells[6]}-|-{cells[7]}-|-{cells[8]}-");        
+            start_game();
         }
-        static void make_move(int num)
-        {
-            string raw_cell;
-            int cell;
-            if (num == 1) Console.Write(PlayerName1);
-            else Console.Write(PlayerName2);
-            do
-            {
-                Console.Write(",введите номер ячейки,сделайте свой ход:");
 
-                raw_cell = Console.ReadLine();
-            }
-            while (!Int32.TryParse(raw_cell, out cell));
+        public void show_cells()
+        {
+            Clear();
+
+            WriteLine("Числа клеток:");
+            WriteLine("-1-|-2-|-3-");
+            WriteLine("-4-|-5-|-6-");
+            WriteLine("-7-|-8-|-9-");
+            WriteLine();
+            WriteLine("Текущая ситуация (---пустой):");
+            WriteLine($"-{cells[0]}-|-{cells[1]}-|-{cells[2]}-");
+            WriteLine($"-{cells[3]}-|-{cells[4]}-|-{cells[5]}-");
+            WriteLine($"-{cells[6]}-|-{cells[7]}-|-{cells[8]}-");        
+        }
+
+        public void do_move(int cell, int num) {
+            if (num == 1) cells[cell - 1] = 'X';
+            else cells[cell - 1] = 'O';
+        }
+        public int find_move(int num) {
+            string raw_cell;
+            int cell = 0;
+
+            if (num == 1) Write(PlayerName1);
+            else Write(PlayerName2);
+
             while (cell > 9 || cell < 1 || cells[cell - 1] == 'O' || cells[cell - 1] == 'X')
             {
                 do
                 {
-                    Console.Write("Введите номер правильного ( 1-9 ) или пустой ( --- ) клетки , чтобы сделать ход:");
-                    raw_cell = Console.ReadLine();
+                    Write(" введите номер ПУСТОГО поля от 1 до 9:");
+                    raw_cell = ReadLine();
                 }
                 while (!Int32.TryParse(raw_cell, out cell));
                 Console.WriteLine();
             }
-            if (num == 1) cells[cell - 1] = 'X';
-            else cells[cell - 1] = 'O';
-            
+            return cell;
         }
-        static char check()
+        public void make_move(int num) { do_move( find_move(num), num ); }
+
+        public char check()
         {
             for (int i = 0; i < 3; i++)
                 if (cells[i * 3] == cells[i * 3 + 1] && cells[i * 3 + 1] == cells[i * 3 + 2])
-                    return cells[i];
+                    return cells[i * 3];
                 else if (cells[i] == cells[i + 3] && cells[i + 3] == cells[i + 6])
                     return cells[i];
-                else if ((cells[2] == cells[4] && cells[4] == cells[6]) || (cells[0] == cells[4] && cells[4] == cells[8]))
-                    return cells[i];
+
+             if (cells[2] == cells[4] && cells[4] == cells[6]) return cells[2];
+             if (cells[0] == cells[4] && cells[4] == cells[8]) return cells[0];
             return '-';
         }
 
-        static void result()
+        public void result(char win)
         {
             if (win == 'X')
-                Console.WriteLine($"{PlayerName1} вы  выиграли поздравляем {PlayerName2} а вы проиграли...");
+                WriteLine($"{PlayerName1} вы  выиграли поздравляем.  {PlayerName2} вы проиграли...");
             else if (win == 'O')
-                Console.WriteLine($"{PlayerName2} вы  выиграли поздравляем {PlayerName1} а вы проиграли...");
-
+                WriteLine($"{PlayerName2} вы  выиграли поздравляем.  {PlayerName1} вы проиграли...");
         }
-
-        static void Main(string[] args)
+        public void start_game()
         {
-            do
-            {
-                Console.Write("Введите имя первого игрока : ");
-                PlayerName1 = Console.ReadLine();
-
-                Console.Write("Введите имя второго игрока: ");
-                PlayerName2 = Console.ReadLine();
-                Console.WriteLine();
-            } while (PlayerName1 == PlayerName2);
-
             show_cells();
 
+            char win = '-';
             for (int move = 1; move <= 9; move++)
             {
                 if (move % 2 != 0) make_move(1);
@@ -95,16 +87,28 @@ namespace XO
 
                 show_cells();
 
-                if (move >= 5)
-                {
+                if (move >= 5) {
                     win = check();
-                    if (win != '-')
-                        break;
+                    if (win != '-')  break;
                 }
-
             }
+            result(win);
+        }
 
-            result();
+        static void Main(string[] args)
+        {
+            string name1, name2;
+            do
+            {
+                Write("Введите имя первого игрока : ");
+                name1 = ReadLine();
+
+                Write("Введите имя второго игрока: ");
+                name2 = ReadLine();
+                WriteLine();
+            } while (name1 == name2);
+
+            new Program(name1, name2);
         }
     }
 }
